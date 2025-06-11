@@ -35,7 +35,7 @@ export class PhotoEditorComponent implements OnInit{
     this.memberService.deletePhoto(photo).subscribe({
       next: _ => {
         const updatedMenmber = {...this.member()};
-        updatedMenmber.photos = updatedMenmber.photos.filter(x => x.id != photo.id);
+        updatedMenmber.photos = updatedMenmber.photos.filter(x => x.id !== photo.id);
         this.memberChange.emit(updatedMenmber);
       }
     })
@@ -80,6 +80,20 @@ export class PhotoEditorComponent implements OnInit{
       const updatedMenmber = {...this.member()}
       updatedMenmber.photos.push(photo);
       this.memberChange.emit(updatedMenmber);
+      if (photo.isMain) {
+        const user = this.accountService.currentUser();
+        if (user) {
+          user.photoUrl = photo.url;
+          this.accountService.setCurrentUser(user)
+        }
+        updatedMenmber.photoUrl = photo.url;
+        updatedMenmber.photos.forEach( p => {
+          if (p.isMain) p.isMain = false;
+          if (p.id === photo.id) p.isMain= true;
+        });
+        this.memberChange.emit(updatedMenmber);
+
+      }
     }
   }
 }

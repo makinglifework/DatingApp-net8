@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 
 [Authorize]
-public class UsersController(IUserRepository userRepository, IMapper mapper, 
+public class UsersController(IUserRepository userRepository, IMapper mapper,
     IPhotoService photoService) : BaseApiController
 {
     [HttpGet]
@@ -52,7 +52,7 @@ public class UsersController(IUserRepository userRepository, IMapper mapper,
     [HttpPost("add-photo")]
     public async Task<ActionResult<PhotoDto>> AddPhoto(IFormFile file)
     {
-        var user =  await userRepository.GetUserByUsernameAsync(User.GetUserName());
+        var user = await userRepository.GetUserByUsernameAsync(User.GetUserName());
 
         if (user == null) return BadRequest("Cannot update user");
 
@@ -66,13 +66,15 @@ public class UsersController(IUserRepository userRepository, IMapper mapper,
             PublicId = result.PublicId
         };
 
+        if (user.Photos.Count == 0) photo.IsMain = true;
+
         user.Photos.Add(photo);
 
-        if (await userRepository.SaveAllAsync()) 
-            return CreatedAtAction(nameof(GetUser), 
-                new {username = user.UserName}, mapper.Map<PhotoDto>(photo));
+        if (await userRepository.SaveAllAsync())
+            return CreatedAtAction(nameof(GetUser),
+                new { username = user.UserName }, mapper.Map<PhotoDto>(photo));
 
-        return BadRequest("Problem adding photo");  
+        return BadRequest("Problem adding photo");
     }
 
     [HttpPut("set-main-photo/{photoId:int}")]
@@ -97,7 +99,7 @@ public class UsersController(IUserRepository userRepository, IMapper mapper,
     [HttpDelete("delete-photo/{photoId:int}")]
     public async Task<ActionResult> DeletePhoto(int photoId)
     {
-        var user =await userRepository.GetUserByUsernameAsync(User.GetUserName());
+        var user = await userRepository.GetUserByUsernameAsync(User.GetUserName());
 
         if (user == null) return BadRequest("User not found");
 
