@@ -32,8 +32,9 @@ public class AccountController(DataContext context, ITokenService tokenService,
         return new UserDTO
         {
             Username = user.UserName,
+            KnownAs = user.KnownAs,
             Token = tokenService.CreateToken(user),
-            KnownAs = user.KnownAs
+            Gender = user.Gender
         };
     }
 
@@ -62,12 +63,13 @@ public class AccountController(DataContext context, ITokenService tokenService,
             Username = user.UserName,
             KnownAs = user.KnownAs,
             Token = tokenService.CreateToken(user),
+            Gender = user.Gender,
             PhotoUrl = user.Photos.FirstOrDefault(x => x.IsMain)?.Url
         };
     }
     
     private async Task<bool> UserExists(string username)
     {
-        return await context.Users.AnyAsync(x => x.UserName.ToLower() == username.ToLower());   // Bob != bob
+        return await context.Users.AnyAsync(x => x.UserName.ToLower() == username.ToLower()); // Bob != bob
     }
 }
